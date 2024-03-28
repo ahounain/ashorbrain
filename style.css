@@ -2,21 +2,44 @@
      font-family: Futura, monospace;
      font-size: 50px;
      text-align: center;
+     --color: rgb(255, 255, 255);
+     --background-color: rgb(20, 19, 19);
     }
 #bigLetterTrack {
     font-family: Papyrus, monospace;
     font-size: 375px;
     color: #FF0000;
      text-align: center;
+     --background-color: rgb(15, 14, 14);
     }
-    footer {
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: #333;
+}
+
+footer ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer ul li {
+    display: inline;
+    margin: 0 10px;
+}
+footer ul li a {
     color: white;
-    text-align: center;
+    text-decoration: none;
+}
+
+footer ul li a:hover {
+    color: #ddd;
 }
 
 nav ul {
@@ -40,6 +63,7 @@ nav ul li a:hover {
 a {
     font-family: Futura, monospace;
     font-size: 28px;
+    text-align: center;
 }
 h1 {
     font-family: Futura, monospace;
@@ -51,10 +75,43 @@ p1 {
     text-align: left;
     font-size: 50px;
 }
+
 p2 {
     font-family: Papyrus, monospace;
     text-align: right;
     font-size:28px;
 }
+p3 {
+    font-family: Futura, monospace;
+    text-align:right;
+    font-size: 28px;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+.links a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.links a:hover {
+    color: #0056b3;
+}
+#github {
+    color:rgb(15, 14, 14)
+}
+#github:hover {
+    color:rgb(104, 99, 99)
+}
+#email {
+    color: red
+}
+#email:hover {
+    color:rgb(209, 35, 35)
+}
+
 
 
