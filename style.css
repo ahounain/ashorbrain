@@ -1,0 +1,60 @@
+#alewifeTrackName {
+     font-family: Futura, monospace;
+     font-size: 50px;
+     text-align: center;
+    }
+#bigLetterTrack {
+    font-family: Papyrus, monospace;
+    font-size: 375px;
+    color: #FF0000;
+     text-align: center;
+    }
+    footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    color: #ddd;
+}
+a {
+    font-family: Futura, monospace;
+    font-size: 28px;
+}
+h1 {
+    font-family: Futura, monospace;
+    text-align: center;
+    font-size: 35px;
+}
+p1 {
+    font-family: Futura, monospace;
+    text-align: left;
+    font-size: 50px;
+}
+p2 {
+    font-family: Papyrus, monospace;
+    text-align: right;
+    font-size:28px;
+}
+
+
