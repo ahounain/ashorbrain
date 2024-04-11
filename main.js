@@ -17,10 +17,7 @@ async function fetchFirstPrediction(stopId) {
 }
 function set(alewifeTrackName, JFKArrivalTime) {
   switch (alewifeTrackName) {
-    case 'Ashmont':
-      
-         
-       
+    case 'Ashmont': 
         return "Ashmont train arrives in " + JFKArrivalTime
        + getMessage(JFKArrivalTime); 
       break;
@@ -60,34 +57,47 @@ async function compareArrivalTimes() {
     let JFKArrivalTime = 0;
 
    if (braintreeData.data.length > 0 && ashmontData.data.length > 0) {
-      const braintreeArrivalTime = new Date(braintreeData.data[0].attributes.arrival_time);
-      const ashmontArrivalTime = new Date(ashmontData.data[0].attributes.arrival_time);
+      var braintreeArrivalTime = new Date(braintreeData.data[0].attributes.arrival_time);
+      var ashmontArrivalTime = new Date(ashmontData.data[0].attributes.arrival_time);
 
       console.log(braintreeArrivalTime.toLocaleTimeString('en-US'));
-      console.log(ashmontArrivalTime.toLocaleTimeString('en-US'))
+      console.log(ashmontArrivalTime.toLocaleTimeString('en-US'));
 
       console.log((braintreeArrivalTime-ashmontArrivalTime) / millisecondstoMinutes);
       // if the braintree train arrives after the ashmont train,
       // that means that the alewife train will show up on the ashmont 
       // track.
+     braintreeArrivalTime =(Math.floor((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
+     ashmontArrivalTime =(Math.floor((ashmontArrivalTime - currentTime) / millisecondstoMinutes)); 
       if (braintreeArrivalTime > ashmontArrivalTime) {
-            JFKArrivalTime = (Math.round((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
+            JFKArrivalTime = ashmontArrivalTime ;
             if (JFKArrivalTime < 0) {
               JFKArrivalTime = 0;
             }
+            if (JFKArrivalTime == 0) {
+              alewifeTrackName = set("Ashmont", JFKArrivalTime) + "Next train in " +
+            braintreeArrivalTime +" minutes";
+              bigLetterTrack = "A";
+            } else {
             alewifeTrackName = set("Ashmont", JFKArrivalTime);
             bigLetterTrack = "A";
+            }
       // similarly if the braintree train arrives before the ashmont train,
       // that means the alewife train will be on the braintree track
       } else if (braintreeArrivalTime < ashmontArrivalTime) {
-        JFKArrivalTime = (Math.round((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
+        JFKArrivalTime = braintreeArrivalTime;
         // prevent negative predictions
         if (JFKArrivalTime < 0) {
           JFKArrivalTime = 0;
         }
+        if (JFKArrivalTime == 0) {
+          alewifeTrackName = set("Braintree", JFKArrivalTime) + "Next train in" +
+            ashmontArrivalTime + " minutes";
+          bigLetterTrack = "B";
+        } else {
           alewifeTrackName = set("Braintree", JFKArrivalTime);
           bigLetterTrack = "B";
-
+          }
       }
 
       
