@@ -91,7 +91,7 @@ async function compareArrivalTimes() {
           JFKArrivalTime = 0;
         }
         if (JFKArrivalTime == 0) {
-          alewifeTrackName = set("Braintree", JFKArrivalTime) + " Next train in" +
+          alewifeTrackName = set("Braintree", JFKArrivalTime) + " Next train in " +
             ashmontArrivalTime + " minutes.";
           bigLetterTrack = "B";
         } else {
