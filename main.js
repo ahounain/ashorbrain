@@ -18,11 +18,11 @@ async function fetchFirstPrediction(stopId) {
 function set(alewifeTrackName, JFKArrivalTime) {
   switch (alewifeTrackName) {
     case 'Ashmont': 
-        return "Ashmont train arrives in " + JFKArrivalTime
+        return "Alewife train arrives on the Ashmont track in " + JFKArrivalTime
        + getMessage(JFKArrivalTime); 
       break;
     case 'Braintree':
-      return "Braintree train arrives in " + JFKArrivalTime
+      return "Alewife train arrives on the Braintree track in " + JFKArrivalTime
       + getMessage(JFKArrivalTime);
       break;
   }
@@ -75,8 +75,8 @@ async function compareArrivalTimes() {
               JFKArrivalTime = 0;
             }
             if (JFKArrivalTime == 0) {
-              alewifeTrackName = set("Ashmont", JFKArrivalTime) + "Next train in " +
-            braintreeArrivalTime +" minutes";
+              alewifeTrackName = set("Ashmont", JFKArrivalTime) + " Next train in " +
+            braintreeArrivalTime +" minutes.";
               bigLetterTrack = "A";
             } else {
             alewifeTrackName = set("Ashmont", JFKArrivalTime);
@@ -91,8 +91,8 @@ async function compareArrivalTimes() {
           JFKArrivalTime = 0;
         }
         if (JFKArrivalTime == 0) {
-          alewifeTrackName = set("Braintree", JFKArrivalTime) + "Next train in" +
-            ashmontArrivalTime + " minutes";
+          alewifeTrackName = set("Braintree", JFKArrivalTime) + " Next train in" +
+            ashmontArrivalTime + " minutes.";
           bigLetterTrack = "B";
         } else {
           alewifeTrackName = set("Braintree", JFKArrivalTime);
