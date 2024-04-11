@@ -1,6 +1,7 @@
 const apiKey = "7c63389a42094132975142d2005f23d5";
 const alewifeStopId = "70096";
 const ashmontStopId = "70086";
+let alewifeTrackName = "";
 
 async function fetchFirstPrediction(stopId) {
   const response = await fetch(
@@ -11,6 +12,30 @@ async function fetchFirstPrediction(stopId) {
     return new Date(data.data[0].attributes.arrival_time);
   } else {
     throw new Error(`No predictions available for Stop ID ${stopId}`);
+    alewifeTrackName = "Error getting prediction";
+  }
+}
+function set(alewifeTrackName, JFKArrivalTime) {
+  switch (alewifeTrackName) {
+    case 'Ashmont':
+      
+         
+       
+        return "Ashmont train arrives in " + JFKArrivalTime
+       + getMessage(JFKArrivalTime); 
+      break;
+    case 'Braintree':
+      return "Braintree train arrives in " + JFKArrivalTime
+      + getMessage(JFKArrivalTime);
+      break;
+  }
+}
+function getMessage(JFKArrivalTime) {
+  
+  if (JFKArrivalTime == 1) {
+    return " minute.";  
+  } else {
+    return " minutes.";
   }
 }
 const currentTime = new Date();
@@ -19,68 +44,63 @@ console.log(currentTime);
 
 async function compareArrivalTimes() {
   try {
-    const braintreeArrivalTime = await fetchFirstPrediction(alewifeStopId);
-    const ashmontArrivalTime = await fetchFirstPrediction(ashmontStopId);
+    const [braintreeResponse, ashmontResponse] = await Promise.all([
+      fetch(
+        `https://api-v3.mbta.com/predictions?filter[stop]=${alewifeStopId}&api_key=${apiKey}`
+      ),
+      fetch(
+        `https://api-v3.mbta.com/predictions?filter[stop]=${ashmontStopId}&api_key=${apiKey}`
+      ),
+    ]);
+    const braintreeData = await braintreeResponse.json();
+    const ashmontData = await ashmontResponse.json();
+
     let alewifeTrackName = "";
     let bigLetterTrack = "";
     let JFKArrivalTime = 0;
 
-    if (braintreeArrivalTime && ashmontArrivalTime) {
-      if (braintreeArrivalTime < ashmontArrivalTime) {
-        alewifeTrackName = "Alewife train is on the Braintree track.";
-        bigLetterTrack = "B";
-        JFKArrivalTime = Math.floor(
-          (braintreeArrivalTime - currentTime) / millisecondstoMinutes
-        );
-        if (JFKArrivalTime <= 2) {
-          alewifeTrackName =
-            "Alewife train is on the Braintree track in " +
-            JFKArrivalTime +
-            " minutes.. better get running pal";
-        } else {
-          alewifeTrackName =
-            "Alewife train is on the Braintree track in " +
-            JFKArrivalTime +
-            " minutes";
+   if (braintreeData.data.length > 0 && ashmontData.data.length > 0) {
+      const braintreeArrivalTime = new Date(braintreeData.data[0].attributes.arrival_time);
+      const ashmontArrivalTime = new Date(ashmontData.data[0].attributes.arrival_time);
+
+      console.log(braintreeArrivalTime.toLocaleTimeString('en-US'));
+      console.log(ashmontArrivalTime.toLocaleTimeString('en-US'))
+
+      console.log((braintreeArrivalTime-ashmontArrivalTime) / millisecondstoMinutes);
+      // if the braintree train arrives after the ashmont train,
+      // that means that the alewife train will show up on the ashmont 
+      // track.
+      if (braintreeArrivalTime > ashmontArrivalTime) {
+            JFKArrivalTime = (Math.round((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
+            if (JFKArrivalTime < 0) {
+              JFKArrivalTime = 0;
+            }
+            alewifeTrackName = set("Ashmont", JFKArrivalTime);
+            bigLetterTrack = "A";
+      // similarly if the braintree train arrives before the ashmont train,
+      // that means the alewife train will be on the braintree track
+      } else if (braintreeArrivalTime < ashmontArrivalTime) {
+        JFKArrivalTime = (Math.round((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
+        // prevent negative predictions
+        if (JFKArrivalTime < 0) {
+          JFKArrivalTime = 0;
         }
-      } else if (braintreeArrivalTime > ashmontArrivalTime) {
-        bigLetterTrack = "A";
-        JFKArrivalTime = Math.floor(
-          (braintreeArrivalTime - currentTime) / millisecondstoMinutes
-        );
-        if (JFKArrivalTime == 2) {
-          alewifeTrackName =
-            "Alewife train is on the Ashmont track in " +
-            JFKArrivalTime +
-            " minutes.. better get running pal";
-        } else if (JFKArrivalTime == 1) {
-          alewifeTrackName =
-            "Alewife train is on the Ashmont track in " +
-            JFKArrivalTime +
-            " minute.. It's over.";
-        } else if (JFKArrivalTime > 10) {
-          alewifeTrackName =
-            "Alewife train is on the Ashmont track in " +
-            JFKArrivalTime +
-            " minutes. Get comfy.";
-        } else {
-          alewifeTrackName =
-            "Alewife train is on the Ashmont track in " +
-            JFKArrivalTime +
-            " minutes";
-        }
-      } else {
-        alewifeTrackName = "Both stops have the same arrival time. IDK bruh";
-        bigLetterTrack = "🤷";
+          alewifeTrackName = set("Braintree", JFKArrivalTime);
+          bigLetterTrack = "B";
+
       }
+
+      
+
+
     } else {
-      alewifeTrackName = "Unable to compare arrival times due to missing data.";
-      bigLetterTrack = "😿";
+      console.log("no datas");
     }
+    
 
     document.getElementById("alewifeTrackName").textContent = alewifeTrackName;
     document.getElementById("bigLetterTrack").textContent = bigLetterTrack;
-    document.getElementById("JFKArrivalTime").textContent = JFKArrivalTime;
+   // document.getElementById("JFKArrivalTime").textContent = JFKArrivalTime;
   } catch (error) {
     console.error("Error fetching predictions:", error);
   }
