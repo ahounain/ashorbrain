@@ -27,6 +27,7 @@ function set(alewifeTrackName, JFKArrivalTime) {
       break;
   }
 }
+
 function getMessage(JFKArrivalTime) {
   
   if (JFKArrivalTime == 1) {
@@ -50,19 +51,21 @@ async function compareArrivalTimes() {
       ),
     ]);
     const braintreeData = await braintreeResponse.json();
+    console.log(braintreeData);
     const ashmontData = await ashmontResponse.json();
+    console.log(ashmontData);
 
     let alewifeTrackName = "";
     let bigLetterTrack = "";
     let JFKArrivalTime = 0;
-
+    
    if (braintreeData.data.length > 0 && ashmontData.data.length > 0) {
       var braintreeArrivalTime = new Date(braintreeData.data[0].attributes.arrival_time);
       var ashmontArrivalTime = new Date(ashmontData.data[0].attributes.arrival_time);
 
       console.log(braintreeArrivalTime.toLocaleTimeString('en-US'));
       console.log(ashmontArrivalTime.toLocaleTimeString('en-US'));
-
+    
       console.log((braintreeArrivalTime-ashmontArrivalTime) / millisecondstoMinutes);
       // if the braintree train arrives after the ashmont train,
       // that means that the alewife train will show up on the ashmont 
@@ -70,6 +73,7 @@ async function compareArrivalTimes() {
      braintreeArrivalTime =(Math.floor((braintreeArrivalTime - currentTime) / millisecondstoMinutes));
      ashmontArrivalTime =(Math.floor((ashmontArrivalTime - currentTime) / millisecondstoMinutes)); 
       if (braintreeArrivalTime > ashmontArrivalTime) {
+         var ashmontArrivalTime = new Date(ashmontData.data[0].attributes.arrival_time);
             JFKArrivalTime = ashmontArrivalTime ;
             if (JFKArrivalTime < 0) {
               JFKArrivalTime = 0;
@@ -103,8 +107,53 @@ async function compareArrivalTimes() {
       
 
 
-    } else {
-      console.log("no datas");
+    } else if (braintreeData.data.length == 0) {
+      var ashmontArrivalTime = new Date(
+        ashmontData.data[0].attributes.arrival_time
+      );
+      ashmontArrivalTime = Math.floor(
+        (ashmontArrivalTime - currentTime) / millisecondstoMinutes
+      ); 
+      JFKArrivalTime = ashmontArrivalTime;
+      if (JFKArrivalTime < 0) {
+        JFKArrivalTime = 0;
+      }
+      if (JFKArrivalTime == 0) {
+        alewifeTrackName =
+          set("Ashmont", JFKArrivalTime) +
+          " Next train in " +
+          braintreeArrivalTime +
+          " minutes.";
+        bigLetterTrack = "A";
+      } else {
+        alewifeTrackName = set("Ashmont", JFKArrivalTime);
+        bigLetterTrack = "A";
+      }
+
+    } else if (ashmontData.data.length == 0) {
+      var braintreeArrivalTime = new Date(
+        braintreeData.data[0].attributes.arrival_time
+      );
+      braintreeArrivalTime = Math.floor(
+        (braintreeArrivalTime - currentTime) / millisecondstoMinutes
+      );
+      JFKArrivalTime = braintreeArrivalTime;
+      if (JFKArrivalTime < 0) {
+        JFKArrivalTime = 0;
+      }
+      if (JFKArrivalTime == 0) {
+        alewifeTrackName =
+          set("Braintree", JFKArrivalTime) +
+          " Next train in " +
+          ashmontArrivalTime +
+          " minutes.";
+        bigLetterTrack = "B";
+      } else {
+        alewifeTrackName = set("Braintree", JFKArrivalTime);
+        bigLetterTrack = "B";
+    }  else {
+      alewifeTrackName = "No predictions available for anything";
+      bigLetterTrack = ":(";
     }
     
 
