@@ -1,182 +1,85 @@
 const apiKey = "7c63389a42094132975142d2005f23d5";
 const alewifeStopId = "70096";
 const ashmontStopId = "70086";
-let alewifeTrackName = "";
-
-async function fetchFirstPrediction(stopId) {
-  const response = await fetch(
-    `https://api-v3.mbta.com/predictions?filter[stop]=${stopId}&api_key=${apiKey}`
-  );
-  const data = await response.json();
-  if (data.data.length > 0) {
-    return new Date(data.data[0].attributes.arrival_time);
-  } else {
-    throw new Error(`No predictions available for Stop ID ${stopId}`);
-    alewifeTrackName = "Error getting prediction";
-  }
-}
-
-function set(alewifeTrackName, JFKArrivalTime) {
-  switch (alewifeTrackName) {
-    case "Ashmont":
-      return (
-        "Alewife train arrives on the Ashmont track in " +
-        JFKArrivalTime +
-        getMessage(JFKArrivalTime)
-      );
-    case "Braintree":
-      return (
-        "Alewife train arrives on the Braintree track in " +
-        JFKArrivalTime +
-        getMessage(JFKArrivalTime)
-      );
-  }
-}
-
-function getMessage(JFKArrivalTime) {
-  if (JFKArrivalTime == 1) {
-    return " minute.";
-  } else {
-    return " minutes.";
-  }
-}
-
-const currentTime = new Date();
 const millisecondstoMinutes = 1000 * 60;
-console.log(currentTime);
+
+async function fetchPredictionTime(stopId) {
+  try {
+    const response = await fetch(
+      `https://api-v3.mbta.com/predictions?filter[stop]=${stopId}&api_key=${apiKey}`
+    );
+    const data = await response.json();
+    if (data.data.length > 0) {
+      return new Date(data.data[0].attributes.arrival_time);
+    } else {
+      throw new Error("No predictions available");
+    }
+  } catch (error) {
+    console.error(`Error fetching prediction for Stop ID ${stopId}:`, error);
+    return null;
+  }
+}
+
+function formatArrivalMessage(trackName, minutesUntilArrival) {
+  const timeMessage = minutesUntilArrival === 1 ? " minute." : " minutes.";
+  return `${trackName} train arrives on the ${trackName} track in ${minutesUntilArrival}${timeMessage}`;
+}
+
+function setSplashScreenMessage(message) {
+  document.getElementById("alewifeTrackName").textContent = message;
+  document.getElementById("bigLetterTrack").textContent = ":(";
+}
 
 async function compareArrivalTimes() {
   try {
-    const [braintreeResponse, ashmontResponse] = await Promise.all([
-      fetch(
-        `https://api-v3.mbta.com/predictions?filter[stop]=${alewifeStopId}&api_key=${apiKey}`
-      ),
-      fetch(
-        `https://api-v3.mbta.com/predictions?filter[stop]=${ashmontStopId}&api_key=${apiKey}`
-      ),
+    const [braintreeArrival, ashmontArrival] = await Promise.all([
+      fetchPredictionTime(alewifeStopId),
+      fetchPredictionTime(ashmontStopId),
     ]);
-    const braintreeData = await braintreeResponse.json();
-    console.log(braintreeData);
-    const ashmontData = await ashmontResponse.json();
-    console.log(ashmontData);
 
-    let alewifeTrackName = "";
-    let bigLetterTrack = "";
-    let JFKArrivalTime = 0;
-
-    if (braintreeData.data.length > 0 && ashmontData.data.length > 0) {
-      var braintreeArrivalTime = new Date(
-        braintreeData.data[0].attributes.arrival_time
-      );
-      var ashmontArrivalTime = new Date(
-        ashmontData.data[0].attributes.arrival_time
-      );
-
-      console.log(braintreeArrivalTime.toLocaleTimeString("en-US"));
-      console.log(ashmontArrivalTime.toLocaleTimeString("en-US"));
-
-      console.log(
-        (braintreeArrivalTime - ashmontArrivalTime) / millisecondstoMinutes
-      );
-      // if the braintree train arrives after the ashmont train,
-      // that means that the alewife train will show up on the ashmont
-      // track.
-      braintreeArrivalTime = Math.floor(
-        (braintreeArrivalTime - currentTime) / millisecondstoMinutes
-      );
-      ashmontArrivalTime = Math.floor(
-        (ashmontArrivalTime - currentTime) / millisecondstoMinutes
-      );
-      if (braintreeArrivalTime > ashmontArrivalTime) {
-        JFKArrivalTime = ashmontArrivalTime;
-        if (JFKArrivalTime < 0) {
-          JFKArrivalTime = 0;
-        }
-        if (JFKArrivalTime == 0) {
-          alewifeTrackName =
-            set("Ashmont", JFKArrivalTime) +
-            " Next train in " +
-            braintreeArrivalTime +
-            " minutes.";
-          bigLetterTrack = "A";
-        } else {
-          alewifeTrackName = set("Ashmont", JFKArrivalTime);
-          bigLetterTrack = "A";
-        }
-        // similarly if the braintree train arrives before the ashmont train,
-        // that means the alewife train will be on the braintree track
-      } else if (braintreeArrivalTime < ashmontArrivalTime) {
-        JFKArrivalTime = braintreeArrivalTime;
-        // prevent negative predictions
-        if (JFKArrivalTime < 0) {
-          JFKArrivalTime = 0;
-        }
-        if (JFKArrivalTime == 0) {
-          alewifeTrackName =
-            set("Braintree", JFKArrivalTime) +
-            " Next train in " +
-            ashmontArrivalTime +
-            " minutes.";
-          bigLetterTrack = "B";
-        } else {
-          alewifeTrackName = set("Braintree", JFKArrivalTime);
-          bigLetterTrack = "B";
-        }
-      }
-    } else if (braintreeData.data.length == 0) {
-      var ashmontArrivalTime = new Date(
-        ashmontData.data[0].attributes.arrival_time
-      );
-      ashmontArrivalTime = Math.floor(
-        (ashmontArrivalTime - currentTime) / millisecondstoMinutes
-      );
-      JFKArrivalTime = ashmontArrivalTime;
-      if (JFKArrivalTime < 0) {
-        JFKArrivalTime = 0;
-      }
-      if (JFKArrivalTime == 0) {
-        alewifeTrackName =
-          set("Ashmont", JFKArrivalTime) +
-          " Next train in " +
-          braintreeArrivalTime +
-          " minutes.";
-        bigLetterTrack = "A";
-      } else {
-        alewifeTrackName = set("Ashmont", JFKArrivalTime);
-        bigLetterTrack = "A";
-      }
-    } else if (ashmontData.data.length == 0) {
-      var braintreeArrivalTime = new Date(
-        braintreeData.data[0].attributes.arrival_time
-      );
-      braintreeArrivalTime = Math.floor(
-        (braintreeArrivalTime - currentTime) / millisecondstoMinutes
-      );
-      JFKArrivalTime = braintreeArrivalTime;
-      if (JFKArrivalTime < 0) {
-        JFKArrivalTime = 0;
-      }
-      if (JFKArrivalTime == 0) {
-        alewifeTrackName =
-          set("Braintree", JFKArrivalTime) +
-          " Next train in " +
-          ashmontArrivalTime +
-          " minutes.";
-        bigLetterTrack = "B";
-      } else {
-        alewifeTrackName = set("Braintree", JFKArrivalTime);
-        bigLetterTrack = "B";
-      }
-    } else {
-      alewifeTrackName = "No predictions available for anything";
-      bigLetterTrack = ":(";
+    if (!braintreeArrival && !ashmontArrival) {
+      setSplashScreenMessage("No predictions available for any tracks.");
+      return;
     }
 
-    document.getElementById("alewifeTrackName").textContent = alewifeTrackName;
+    const currentTime = new Date();
+    const braintreeTimeLeft = braintreeArrival
+      ? Math.max(0, Math.floor((braintreeArrival - currentTime) / millisecondstoMinutes))
+      : null;
+    const ashmontTimeLeft = ashmontArrival
+      ? Math.max(0, Math.floor((ashmontArrival - currentTime) / millisecondstoMinutes))
+      : null;
+
+    let trackName = "";
+    let arrivalMessage = "";
+    let bigLetterTrack = "";
+
+    if (braintreeTimeLeft !== null && ashmontTimeLeft !== null) {
+      if (braintreeTimeLeft > ashmontTimeLeft) {
+        trackName = "Ashmont";
+        arrivalMessage = formatArrivalMessage(trackName, ashmontTimeLeft);
+        bigLetterTrack = "A";
+      } else {
+        trackName = "Braintree";
+        arrivalMessage = formatArrivalMessage(trackName, braintreeTimeLeft);
+        bigLetterTrack = "B";
+      }
+    } else if (braintreeTimeLeft !== null) {
+      trackName = "Braintree";
+      arrivalMessage = formatArrivalMessage(trackName, braintreeTimeLeft);
+      bigLetterTrack = "B";
+    } else if (ashmontTimeLeft !== null) {
+      trackName = "Ashmont";
+      arrivalMessage = formatArrivalMessage(trackName, ashmontTimeLeft);
+      bigLetterTrack = "A";
+    }
+
+    document.getElementById("alewifeTrackName").textContent = arrivalMessage;
     document.getElementById("bigLetterTrack").textContent = bigLetterTrack;
-    // document.getElementById("JFKArrivalTime").textContent = JFKArrivalTime;
+
   } catch (error) {
-    console.error("Error fetching predictions:", error);
+    console.error("Error comparing arrival times:", error);
+    setSplashScreenMessage("Error loading arrival times");
   }
 }
 
