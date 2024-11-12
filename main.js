@@ -22,7 +22,7 @@ async function fetchPredictionTime(stopId) {
 
 function formatArrivalMessage(trackName, minutesUntilArrival) {
   const timeMessage = minutesUntilArrival === 1 ? " minute." : " minutes.";
-  return `${trackName} train arrives on the ${trackName} track in ${minutesUntilArrival}${timeMessage}`;
+  return `Alewife train arrives on the ${trackName} track in ${minutesUntilArrival}${timeMessage}`;
 }
 
 function setSplashScreenMessage(message) {
