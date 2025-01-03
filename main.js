@@ -31,6 +31,7 @@ function setSplashScreenMessage(message) {
 }
 
 async function compareArrivalTimes() {
+  console.log("refresh!")
   try {
     const [braintreeArrival, ashmontArrival] = await Promise.all([
       fetchPredictionTime(alewifeStopId),
@@ -84,3 +85,5 @@ async function compareArrivalTimes() {
 }
 
 compareArrivalTimes();
+
+setInterval(compareArrivalTimes, 30000 );
